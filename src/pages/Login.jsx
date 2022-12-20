@@ -17,42 +17,78 @@ import { useRouter } from "next/router";
 
 
 export default function Login() {
-
     const [user, setUser] = useState({ email: "", password: "", username: "", });
     // const [currentUser, setCurrentUser] = useState({})
 
     const router = useRouter()
+    async function SignInUser({ username, password }) {
 
+        await axios.post('/api/auth/login', {
+            username: username,
+        }).then((response) => {
+            console.log(response.data.body);
+            const { email } = response.data.body
+
+            if (email) {
+                console.log("email is ", email);
+
+                const auth = getAuth(firebaseApp);
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Signed in 
+                        const user = userCredential.user;
+                        console.log(user)
+                        user && (() => {
+                            localStorage.setItem("tic-tac-toe-user", JSON.stringify(user));
+                        })();
+
+                        router.push("/game")
+
+                    })
+                    .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        console.log(errorCode, errorMessage)
+                    });
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
+
+
+
+
+    useEffect(() => {
+        if (JSON.parse(localStorage.getItem("tic-tac-toe-user"))) {
+
+            const { uid } = JSON.parse(localStorage.getItem("tic-tac-toe-user"));
+            const CheckId = async (uid) => {
+                await axios.post('/api/auth/uid', {
+                    uid: uid,
+                }).then((response) => {
+                    console.log(response.data.body);
+                    if (response.data.body.isValid)
+                        router.push("/game")
+
+                }).catch((error) => {
+                    console.log(error);
+                    return {
+                        error: error
+                    }
+                });
+            }
+            console.log(CheckId(uid));
+
+
+            CheckId(uid)
+        }
+    }, [router, user])
     const handleSubmit = (e) => {
         e.preventDefault()
         console.log(user)
         SignInUser(user)
     }
-
-    useEffect(() => {
-        const uid = JSON.parse(localStorage.getItem("tic-tac-toe-user"));
-        const CheckId = async (uid) => {
-            await axios.post('/api/auth/uid', {
-                uid: uid,
-            }).then((response) => {
-                console.log(response.data.body);
-                if (response.data.body.isValid)
-                    router.push("/game")
-
-            }).catch((error) => {
-                console.log(error);
-                return {
-                    error: error
-                }
-            });
-        }
-        console.log(CheckId(uid));
-
-
-        CheckId(uid)
-
-    }, [router])
-
     return (<>
         <ActionBar>
             <Link href="/">
@@ -102,33 +138,4 @@ export default function Login() {
 }
 
 
-async function SignInUser({ username, password }) {
 
-    await axios.post('/api/auth/login', {
-        username: username,
-    }).then((response) => {
-        console.log(response.data.body);
-        const { email } = response.data.body
-
-        const auth = getAuth(firebaseApp);
-
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                // Signed in 
-                const user = userCredential.user;
-                console.log(user)
-                user && (() => {
-                    localStorage.setItem("tic-tac-toe-user", JSON.stringify(user));
-                })();
-
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(errorCode, errorMessage)
-            });
-
-    }).catch((error) => {
-        console.log(error);
-    });
-}

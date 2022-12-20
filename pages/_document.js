@@ -1,4 +1,3 @@
-
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheet } from 'styled-components';
 
@@ -35,15 +34,14 @@ export default class MyDocument extends Document {
     return (
       <Html lang='en'>
         <Head>
-
-
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
           <link href="https://fonts.googleapis.com/css2?family=Bilbo&family=Epilogue:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+          <NextScript async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2329686175069611"
+            crossOrigin="anonymous" ></NextScript>
         </Head>
         <body>
           <Main />
           <NextScript />
+
         </body>
       </Html>
     )

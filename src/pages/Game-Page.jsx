@@ -9,27 +9,29 @@ import axios from "axios";
 export default function GamePage() {
     const router = useRouter();
     useEffect(() => {
-        const uid = JSON.parse(localStorage.getItem("tic-tac-toe-user"));
-        const CheckId = async (uid) => {
-            await axios.post('/api/auth/uid', {
-                uid: uid,
-            }).then((response) => {
-                console.log(response.data.body);
-                if (response.data.body.isValid)
-                    router.push("/")
+        if (JSON.parse(localStorage.getItem("tic-tac-toe-user"))) {
 
-            }).catch((error) => {
-                console.log(error);
-                return {
-                    error: error
-                }
-            });
+            const { uid } = JSON.parse(localStorage.getItem("tic-tac-toe-user"));
+            const CheckId = async (uid) => {
+                await axios.post('/api/auth/uid', {
+                    uid: uid,
+                }).then((response) => {
+                    console.log(response.data.body);
+                    if (!response.data.body.isValid)
+                        router.push("/")
+
+                }).catch((error) => {
+                    console.log(error);
+                    return {
+                        error: error
+                    }
+                });
+            }
+            console.log(CheckId(uid));
+
+
+            CheckId(uid)
         }
-        console.log(CheckId(uid));
-
-
-        CheckId(uid)
-
     }, [router]);
 
     return (<>

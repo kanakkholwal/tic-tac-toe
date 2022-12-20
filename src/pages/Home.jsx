@@ -10,32 +10,31 @@ export default function HomePage() {
 
     const router = useRouter();
     useEffect(() => {
-        const uid = JSON.parse(localStorage.getItem("tic-tac-toe-user"));
-        const CheckId = async (uid) => {
-            await axios.post('/api/auth/uid', {
-                uid: uid,
-            }).then((response) => {
-                console.log(response.data.body);
-                if (response.data.body.isValid)
-                    router.push("/game")
+        if (JSON.parse(localStorage.getItem("tic-tac-toe-user"))) {
+            const { uid } = JSON.parse(localStorage.getItem("tic-tac-toe-user"));
+            const CheckId = async (uid) => {
+                await axios.post('/api/auth/uid', {
+                    uid: uid,
+                }).then((response) => {
+                    console.log(response.data.body);
+                    if (response.data.body.isValid)
+                        router.push("/game")
 
-            }).catch((error) => {
-                console.log(error);
-                return {
-                    error: error
-                }
-            });
+                }).catch((error) => {
+                    console.log(error);
+                    return {
+                        error: error
+                    }
+                });
+            }
+            CheckId(uid)
         }
-        console.log(CheckId(uid));
-
-
-        CheckId(uid)
 
     }, [router]);
 
     return (<>
         <HomeHeading>Tic Tac Toe</HomeHeading>
         <Button as={Link} href="/login">Login</Button>
-        <Button primary={true} as={Link} href="/sign-up">Register</Button>
+        <Button primary={"true"} as={Link} href="/sign-up">Register</Button>
     </>)
 }

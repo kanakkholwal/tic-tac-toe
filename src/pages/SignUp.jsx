@@ -15,68 +15,66 @@ import { useRouter } from "next/router";
 import { firebaseApp } from "../libs/firebaseConfig"
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
-async function RegisterUser({ email, username, displayName, password }, router) {
 
-    await axios.post('/api/auth/register', {
-        email: email,
-        username: username,
-        displayName: displayName,
-        password: password,
-    })
-        .then((response) => {
-            console.log(response.data.body);
-            const { email } = response.data.body
-            const auth = getAuth(firebaseApp);
-
-            signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    // Signed in 
-                    const user = userCredential.user;
-                    console.log(user)
-                    user && (() => {
-                        localStorage.setItem("tic-tac-toe-user", JSON.stringify(user));
-                    })();
-
-                    const uid = JSON.parse(localStorage.getItem("tic-tac-toe-user"));
-                    const CheckId = async (uid) => {
-                        await axios.post('/api/auth/uid', {
-                            uid: uid,
-                        }).then((response) => {
-                            console.log(response.data.body);
-                            if (response.data.body.isValid)
-                                router.push("/game")
-
-                        }).catch((error) => {
-                            console.log(error);
-                            return {
-                                error: error
-                            }
-                        });
-
-                    }
-
-
-
-                    console.log(CheckId(uid));
-
-
-                    CheckId(uid)
-
-                })
-                .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    console.log(errorCode, errorMessage)
-                });
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-}
 export default function SignUp() {
     const [user, setUser] = useState({ email: "", password: "", username: "", displayName: "" });
     const router = useRouter();
 
+
+    async function RegisterUser({ email, username, displayName, password }) {
+
+        await axios.post('/api/auth/register', {
+            email: email,
+            username: username,
+            displayName: displayName,
+            password: password,
+        })
+            .then((response) => {
+                console.log(response.data.body);
+                const { email } = response.data.body
+                const auth = getAuth(firebaseApp);
+
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Signed in 
+                        const user = userCredential.user;
+                        console.log(user)
+                        user && (() => {
+                            localStorage.setItem("tic-tac-toe-user", JSON.stringify(user));
+                        })();
+                        if (JSON.parse(localStorage.getItem("tic-tac-toe-user"))) {
+
+                            const { uid } = JSON.parse(localStorage.getItem("tic-tac-toe-user"));
+                            const CheckId = async (uid) => {
+                                await axios.post('/api/auth/uid', {
+                                    uid: uid,
+                                }).then((response) => {
+                                    console.log(response.data);
+                                    if (response.data.body.isValid)
+                                        router.push("/game")
+
+                                }).catch((error) => {
+                                    console.log(error);
+                                    return {
+                                        error: error
+                                    }
+                                });
+
+                            }
+
+                            CheckId(user.uid)
+                        }
+                    })
+                    .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        console.log(errorCode, errorMessage)
+                    });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
     const handleSubmit = (e) => {
         e.preventDefault()
         console.log(user)
