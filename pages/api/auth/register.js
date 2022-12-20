@@ -39,44 +39,6 @@ const Register = async (req, res) => {
 
                         return res.status(200).json({ body: snapshot.val() })
 
-                        // auth.setCustomUserClaims(userRecord.uid, { username: req.body.username }).then(() => {
-                        //     // The new custom claims will propagate to the user's ID token the
-                        //     // next time a new one is issued.
-
-                        //     console.log('Successfully created new username', req.body.username);
-
-                        //     auth.createCustomToken(userRecord.uid, { username: req.body.username })
-                        //         .then(async (Token) => {
-                        //             // Send token back to client
-                        //             const ref = db.ref('pages/views').child(req.query.view)
-                        //             const { snapshot } = await ref.transaction((currentViews) => {
-                        //                 if (currentViews === null) {
-                        //                     return 1
-                        //                 }
-
-
-                        //                 return currentViews + 1
-                        //             })
-                        //             return res.status(200).json({
-                        //                 body: {
-                        //                     uid: userRecord.uid,
-                        //                     token: Token
-                        //                 },
-                        //             })
-                        //         })
-                        //         .catch((error) => {
-                        //             console.log('Error creating custom token:', error);
-                        //             return res.status(200).json({
-                        //                 body: { type: "", error: error },
-                        //             })
-                        //         });
-                        // }).catch((error) => {
-                        //     console.log('Error Setting Username', error);
-                        //     return res.status(200).json({
-                        //         body: { type: "Error Setting Username", error: error },
-                        //     })
-                        // });
-
 
                     })
                     .catch((error) => {

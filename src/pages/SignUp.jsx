@@ -25,7 +25,7 @@ async function RegisterUser({ email, username, displayName, password }, router) 
     })
         .then((response) => {
             console.log(response.data.body);
-            const { email, password } = response.data.body
+            const { email } = response.data.body
 
             const auth = getAuth(firebaseApp);
 
