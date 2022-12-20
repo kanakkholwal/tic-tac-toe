@@ -26,7 +26,6 @@ async function RegisterUser({ email, username, displayName, password }, router) 
         .then((response) => {
             console.log(response.data.body);
             const { email } = response.data.body
-
             const auth = getAuth(firebaseApp);
 
             signInWithEmailAndPassword(auth, email, password)
@@ -46,6 +45,7 @@ async function RegisterUser({ email, username, displayName, password }, router) 
                             console.log(response.data.body);
                             if (response.data.body.isValid)
                                 router.push("/game")
+
                         }).catch((error) => {
                             console.log(error);
                             return {
