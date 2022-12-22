@@ -19,9 +19,11 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 export default function SignUp() {
     const [user, setUser] = useState({ email: "", password: "", username: "", displayName: "" });
     const router = useRouter();
-
+    const [status, setStatus] = useState({ type: "success", message: "Congratulations!!! Account created.", hide: true })
 
     async function RegisterUser({ email, username, displayName, password }) {
+
+        setStatus({ message: "waiting ....", type: "", hide: false })
 
         await axios.post('/api/auth/register', {
             email: email,
@@ -34,6 +36,9 @@ export default function SignUp() {
                 const { email } = response.data.body
                 const auth = getAuth(firebaseApp);
 
+                // setStatus({ message: response.data.body, ...status })
+                setStatus({ message: "Congratulations!!! Account created.", type: "success", hide: false })
+
                 signInWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
                         // Signed in 
@@ -41,6 +46,8 @@ export default function SignUp() {
                         console.log(user)
                         user && (() => {
                             localStorage.setItem("tic-tac-toe-user", JSON.stringify(user));
+                            setStatus({ message: "Login successful User", type: "success", hide: false })
+
                         })();
                         if (JSON.parse(localStorage.getItem("tic-tac-toe-user"))) {
 
@@ -50,8 +57,13 @@ export default function SignUp() {
                                     uid: uid,
                                 }).then((response) => {
                                     console.log(response.data);
-                                    if (response.data.body.isValid)
+                                    if (response.data.body.isValid) {
+                                        setStatus({ message: "Valid User", type: "success", hide: false })
+
                                         router.push("/game")
+                                    }
+                                    else
+                                        setStatus({ message: "InValid User", type: "error", hide: false })
 
                                 }).catch((error) => {
                                     console.log(error);
@@ -123,8 +135,9 @@ export default function SignUp() {
                 <Input type="password" placeholder="Type your name here" value={user.password} onChange={(e) => setUser({ ...user, password: e.target.value })} />
             </FormElement>
 
-            <Alert hidden={true}>
-                Congratulations!!! Account created.
+            <Alert hidden={status.hide} type={status.type}>
+
+                {status.message}
             </Alert>
             <ButtonContainer>
 
