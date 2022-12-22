@@ -1,36 +1,34 @@
-import { db } from "../../../src/libs/firebase";
+import { firestore } from "../../../src/libs/firebase";
 
 const Login = async (req, res) => {
     // increment the views
     if (req.method === 'POST') {
 
 
-        const ref = db.ref('users')
+        const usersRef = firestore.collection('users').doc(req.body.username)
 
 
 
-        await ref.orderByChild("username").equalTo(req.body.username).once("value", (snapshot) => {
 
-            if (snapshot.exists()) {
+        usersRef.get()
+            .then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    usersRef.onSnapshot(async (doc) => {
+                        console.log(doc.data())
+                        return res.status(200).json({ body: doc.data() })
 
-                console.log(snapshot.val())
+                    });
+                } else {
 
+                    console.log("username : " + req.body.username + "  not exist")
+                    return res.status(200).json({ body: "Username not exist" })
 
-                return res.status(200).json({ body: snapshot.val()[req.body.username] })
+                }
+            }).catch((err) => {
 
-            }
-
-            else {
-                console.log("username : " + req.body.username + "  not exist")
-                return res.status(200).json({ body: "Username not exist" })
-            }
-
-
-        }).catch((err) => {
-
-            console.log("error : ", err)
-            return res.status(200).json({ body: err })
-        })
+                console.log("error : ", err)
+                return res.status(200).json({ body: err })
+            })
 
 
     }

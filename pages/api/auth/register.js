@@ -1,4 +1,4 @@
-import { auth, db } from "../../../src/libs/firebase";
+import { auth, firestore } from "../../../src/libs/firebase";
 
 const Register = async (req, res) => {
     // increment the views
@@ -6,60 +6,56 @@ const Register = async (req, res) => {
 
 
 
-        const ref = db.ref('users')
+        const usersRef = firestore.collection('users').doc(req.body.username)
 
+        usersRef.get()
+            .then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    usersRef.onSnapshot((doc) => {
 
-
-        await ref.orderByChild("username").equalTo(req.body.username).once("value", async (snapshot) => {
-
-            if (!snapshot.exists()) {
-
-
-
-                auth.createUser({
-                    email: req.body.email,
-                    emailVerified: true,
-                    password: req.body.password,
-                    displayName: req.body.displayName,
-                    disabled: false,
-                })
-                    .then(async (userRecord) => {
+                        console.log("username : " + req.body.username + "  already exist")
+                        return res.status(200).json({ body: "Username already exist" })
+                    });
+                } else {
+                    auth.createUser({
+                        email: req.body.email,
+                        emailVerified: true,
+                        password: req.body.password,
+                        displayName: req.body.displayName,
+                        disabled: false,
+                    }).then(async (userRecord) => {
                         // See the UserRecord reference doc for the contents of userRecord.
                         console.log('Successfully created new user:', userRecord.uid);
 
-                        const childRef = ref.child(req.body.username)
-                        const { snapshot } = await childRef.transaction((user) => {
+                        usersRef.set({
+                            email: req.body.email,
+                            username: req.body.username,
+                            displayName: req.body.displayName,
+                            uid: userRecord.uid,
+                            game: []
+                        })
+                        const doc = await usersRef.get();
 
-                            return {
-                                email: req.body.email,
-                                username: req.body.username,
-                                uid: userRecord.uid,
-                            }
-                        });
-
-                        return res.status(200).json({ body: snapshot.val() })
+                        return res.status(200).json({ body: doc.data() })
 
 
                     })
-                    .catch((error) => {
-                        console.log('Error creating new user:', error);
-                        return res.status(200).json({
-                            body: { type: "Error creating new user", error: error },
-                        })
-                    });
-            }
-
-            else {
-                console.log("username : " + req.body.username + "  already exist")
-                return res.status(200).json({ body: "Username already exist" })
-            }
+                        .catch((error) => {
+                            console.log('Error creating new user:', error);
+                            return res.status(200).json({
+                                body: { type: "Error creating new user", error: error },
+                            })
+                        });
 
 
-        }).catch((err) => {
 
-            console.log("error : ", err)
-            return res.status(200).json({ body: err })
-        })
+                }
+            }).catch((err) => {
+
+                console.log("error : ", err)
+                return res.status(200).json({ body: err })
+            })
+
 
     }
     // fetch the views

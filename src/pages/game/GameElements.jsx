@@ -26,7 +26,18 @@ padding:1rem;
 height: 96px;
 `;
 
-
+export const Piece = styled.div`
+background: #09101c0d;
+border-radius:8px;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:1rem;
+height: 96px;
+width: 96px;
+margin-inline:0.5rem auto;
+`
 export const Cross = () => {
 
     return (<svg width={64} height={64} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">

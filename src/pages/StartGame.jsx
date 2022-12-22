@@ -5,11 +5,11 @@ import Button from "../components/Button";
 import ButtonContainer from "../components/ButtonContainer";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function StartGame() {
     const router = useRouter();
-
     useEffect(() => {
         if (JSON.parse(localStorage.getItem("tic-tac-toe-user"))) {
 
@@ -19,7 +19,7 @@ export default function StartGame() {
                     uid: uid,
                 }).then((response) => {
                     console.log(response.data.body);
-                    if (response.data.body.isValid)
+                    if (!response.data.body.isValid)
                         router.push("/")
 
                 }).catch((error) => {
@@ -36,9 +36,17 @@ export default function StartGame() {
         }
     }, [router]);
 
+    const [email, setEmail] = useState("");
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+
+    }
+
     return (<>
         <ActionBar>
-            <Link href="/">
+            <Link href="/game">
                 <svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clipPath="url(#clip0_2667_249)">
                         <path d="M16.62 2.99C16.13 2.5 15.34 2.5 14.85 2.99L6.54 11.3C6.15 11.69 6.15 12.32 6.54 12.71L14.85 21.02C15.34 21.51 16.13 21.51 16.62 21.02C17.11 20.53 17.11 19.74 16.62 19.25L9.38 12L16.63 4.75C17.11 4.27 17.11 3.47 16.62 2.99Z" fill="#333333" />
@@ -56,16 +64,16 @@ export default function StartGame() {
         </ActionBar>
         <p>Start a new game</p>
         <Heading>Whom do you want to play with?</Heading>
+        <form onSubmit={handleSubmit}>
+            <FormElement>
+                <Label>Email</Label>
+                <Input type="email" placeholder="Type your email here" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </FormElement>
+            <ButtonContainer type="submit">
 
-        <FormElement>
-            <Label>Email</Label>
-            <Input type="email" placeholder="Type your email here" />
-        </FormElement>
-        <ButtonContainer as={Link} href="/game">
-
-            <Button>Start Game</Button>
-        </ButtonContainer>
-
+                <Button>Start Game</Button>
+            </ButtonContainer>
+        </form>
 
     </>)
 }
