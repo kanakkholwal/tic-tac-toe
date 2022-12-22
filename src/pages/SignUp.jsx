@@ -81,6 +81,8 @@ export default function SignUp() {
                         const errorCode = error.code;
                         const errorMessage = error.message;
                         console.log(errorCode, errorMessage)
+                        setStatus({ message: errorMessage, type: "error", hide: false })
+
                     });
             })
             .catch((error) => {

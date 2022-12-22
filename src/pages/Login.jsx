@@ -18,6 +18,8 @@ import { useRouter } from "next/router";
 
 export default function Login() {
     const [user, setUser] = useState({ email: "", password: "", username: "", });
+    const [status, setStatus] = useState({ type: "success", message: "Login Successful", hide: true })
+
     // const [currentUser, setCurrentUser] = useState({})
 
     const router = useRouter()
@@ -31,6 +33,7 @@ export default function Login() {
 
             if (email) {
                 console.log("email is ", email);
+                setStatus({ message: "Valid Username", type: "success", hide: false })
 
                 const auth = getAuth(firebaseApp);
                 signInWithEmailAndPassword(auth, email, password)
@@ -40,6 +43,8 @@ export default function Login() {
                         console.log(user)
                         user && (() => {
                             localStorage.setItem("tic-tac-toe-user", JSON.stringify(user));
+                            setStatus({ message: "Logged In", type: "success", hide: false })
+
                         })();
 
                         router.push("/game")
@@ -49,10 +54,17 @@ export default function Login() {
                         const errorCode = error.code;
                         const errorMessage = error.message;
                         console.log(errorCode, errorMessage)
+                        setStatus({ message: errorMessage, type: "error", hide: false })
+
                     });
             }
+            else
+                setStatus({ message: "Username not found", type: "error", hide: false })
+
         }).catch((error) => {
             console.log(error);
+            setStatus({ message: "Some Error Occurred", type: "error", hide: false })
+
         });
     }
 
@@ -68,8 +80,12 @@ export default function Login() {
                     uid: uid,
                 }).then((response) => {
                     console.log(response.data.body);
-                    if (response.data.body.isValid)
+                    if (response.data.body.isValid) {
+                        setStatus({ message: "Valid User", type: "success", hide: false })
+
                         router.push("/game")
+                    }
+
 
                 }).catch((error) => {
                     console.log(error);
@@ -124,8 +140,8 @@ export default function Login() {
                 <Input type="password" placeholder="Type your password here" value={user.password} onChange={(e) => setUser({ ...user, password: e.target.value })} />
             </FormElement>
 
-            <Alert hidden={true}>
-                Enter correct details
+            <Alert hidden={status.hide} type={status.type}>
+                {status.message}
             </Alert>
             <ButtonContainer>
 
